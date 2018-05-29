@@ -1,0 +1,3 @@
+[submodule "weou-charging-station"]
+	path = weou-charging-station
+	url = https://github.com/johncoffee/weou-charging-station.git

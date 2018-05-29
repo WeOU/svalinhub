@@ -1,0 +1,10 @@
+.env
+proto
+notebooks
+.ropeproject
+.ipynb_checkpoints
+ssh
+__pycache__
+*.log
+paramiko_server
+hug

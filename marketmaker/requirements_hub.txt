@@ -1,0 +1,5 @@
+gunicorn
+hug
+pymongo
+pandas
+numpy

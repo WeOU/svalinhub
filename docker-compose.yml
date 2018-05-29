@@ -1,0 +1,91 @@
+version: "3.2"
+services:
+
+  mongodb:
+    image: mongo:latest
+    #container_name: "mongodb"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+      #- MONGODB_USER="user"
+      #- MONGODB_PASS="pass"
+    volumes:
+      - mongo_vol:/data/db
+    ports:
+      - 27018:27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    networks:
+      - net_mongo
+
+  marketmaker:
+    build:
+      context: marketmaker
+      dockerfile: mm.Dockerfile
+    environment:
+      - CO2_AUTH=${CO2_AUTH}
+      - MONGO_ADD=mongodb:27017
+    volumes:
+      - ./marketmaker/mm.log:/logs/mm.log
+    networks:
+      - net_mongo
+    links:
+      - mongodb
+    depends_on:
+        - mongodb
+
+
+  hub:
+    build:
+      context: marketmaker
+      dockerfile: hub.Dockerfile
+    environment:
+      - MONGO_ADD=mongodb:27017
+    volumes:
+      - ./marketmaker/hub.log:/logs/hub.log
+    ports:
+      - 8090:8000
+    networks:
+      - net_mongo
+      - net_hub
+    links:
+      - mongodb
+
+
+  charging_backend:
+    build: weou-charging-station/charging-station
+    ports:
+      - "3000:3000"
+    networks:
+      - net_charging
+      - net_hub
+
+  charging_frontend:
+    build:
+      context: weou-charging-station
+      dockerfile: pwa/Dockerfile
+    ports:
+      - "8070:8080"
+    networks:
+      - net_charging
+    depends_on:
+      - charging_backend
+
+  # paramiko:
+  #   build: ./paramiko_server
+  #   volumes:
+  #     #- ./app/req.py:/var/lib/req/app/req.py
+  #     - ./ssh:/ssh
+  #   ports:
+  #     - "8000:8000"
+  #   links:
+  #       - mongodb
+  #   depends_on:
+  #       - mongodb
+
+networks:
+  net_charging:
+  net_mongo:
+  net_hub:
+
+volumes:
+  mongo_vol:

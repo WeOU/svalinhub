@@ -1,0 +1,7 @@
+hug
+schedule
+pandas
+pymongo
+numpy
+requests
+pydotenv
